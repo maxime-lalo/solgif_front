@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react"
 import twitterLogo from "./assets/twitter-logo.svg"
 import idl from "./idl.json"
 import kp from "./keypair.json"
-
+import swal from "sweetalert"
 import "./App.css"
 
 // SystemProgram is a reference to the Solana runtime!
@@ -102,6 +102,28 @@ const App = () => {
         }
     }
 
+    const upvoteGif = async (link, sender) => {
+        try {
+            const provider = getProvider()
+            const program = new Program(idl, programID, provider)
+
+            console.log("here")
+            await program.rpc.voteGif(link, sender, {
+                accounts: {
+                    baseAccount: baseAccount.publicKey,
+                    user: provider.wallet.publicKey,
+                },
+            })
+            console.log("GIF successfully upvoted")
+            await getGifList()
+        } catch (error) {
+            swal({
+                title: "Error",
+                icon: "error",
+                text: "You already upvoted this gif",
+            })
+        }
+    }
     const renderNotConnectedContainer = () => (
         <button
             className="cta-button connect-wallet-button"
@@ -173,9 +195,25 @@ const App = () => {
                                 checkImage(item.gifLink) && (
                                     <div className="gif-item" key={index}>
                                         <img src={item.gifLink} alt="" />
-                                        <span style={{ color: "white" }}>
+                                        <p style={{ color: "white" }}>
+                                            Uploader : <br />
                                             {item.userAddress.toString()}
-                                        </span>
+                                        </p>
+                                        <p style={{ color: "white" }}>
+                                            Upvotes : <br />
+                                            {item.voters.length}
+                                        </p>
+                                        <button
+                                            className="cta-button submit-gif-button"
+                                            onClick={() => {
+                                                upvoteGif(
+                                                    item.gifLink,
+                                                    item.userAddress
+                                                )
+                                            }}
+                                        >
+                                            Upvote
+                                        </button>
                                     </div>
                                 )
                         )}
@@ -252,19 +290,6 @@ const App = () => {
                     {!walletAddress && renderNotConnectedContainer()}
                     {/* We just need to add the inverse here! */}
                     {walletAddress && renderConnectedContainer()}
-                </div>
-                <div className="footer-container">
-                    <img
-                        alt="Twitter Logo"
-                        className="twitter-logo"
-                        src={twitterLogo}
-                    />
-                    <a
-                        className="footer-text"
-                        href={TWITTER_LINK}
-                        target="_blank"
-                        rel="noreferrer"
-                    >{`built on @${TWITTER_HANDLE}`}</a>
                 </div>
             </div>
         </div>

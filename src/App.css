@@ -105,3 +105,9 @@ button:hover {
     border: 2px solid white;
     cursor: pointer;
 }
+
+@media (max-width: 800px) {
+    .gifs-container {
+        justify-content: center;
+    }
+}

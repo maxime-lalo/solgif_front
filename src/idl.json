@@ -45,7 +45,32 @@
             ]
         },
         {
-            "name": "voteGif",
+            "name": "upvoteGif",
+            "accounts": [
+                {
+                    "name": "baseAccount",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "user",
+                    "isMut": true,
+                    "isSigner": true
+                }
+            ],
+            "args": [
+                {
+                    "name": "gifLink",
+                    "type": "string"
+                },
+                {
+                    "name": "gifUploader",
+                    "type": "publicKey"
+                }
+            ]
+        },
+        {
+            "name": "downvoteGif",
             "accounts": [
                 {
                     "name": "baseAccount",
@@ -107,7 +132,13 @@
                         "type": "publicKey"
                     },
                     {
-                        "name": "voters",
+                        "name": "upVoters",
+                        "type": {
+                            "vec": "publicKey"
+                        }
+                    },
+                    {
+                        "name": "downVoters",
                         "type": {
                             "vec": "publicKey"
                         }

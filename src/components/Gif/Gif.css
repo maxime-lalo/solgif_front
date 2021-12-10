@@ -1,0 +1,25 @@
+.gif-container {
+    margin-bottom: 50px;
+    border: 1px solid white;
+    border-radius: 10px;
+    margin-right: 20px;
+    padding: 20px;
+}
+
+.gif-uploader {
+    color: white;
+}
+
+.gif-img {
+    width: 400px;
+    height: 250px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.gif-actions {
+    display: flex;
+    width: 400px;
+    margin: auto;
+    justify-content: space-around;
+}

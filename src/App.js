@@ -1,11 +1,12 @@
 import { Program, Provider, web3 } from "@project-serum/anchor"
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js"
 import React, { useEffect, useState } from "react"
+import swal from "sweetalert"
 
-import twitterLogo from "./assets/twitter-logo.svg"
+import { Gif } from "./components/Gif/Gif"
 import idl from "./idl.json"
 import kp from "./keypair.json"
-import swal from "sweetalert"
+
 import "./App.css"
 
 // SystemProgram is a reference to the Solana runtime!
@@ -25,10 +26,6 @@ const network = clusterApiUrl("devnet")
 const opts = {
     preflightCommitment: "processed",
 }
-
-// Constants
-const TWITTER_HANDLE = "_buildspace"
-const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`
 
 const App = () => {
     // State
@@ -148,10 +145,6 @@ const App = () => {
         return provider
     }
 
-    const checkImage = (url) => {
-        return url.includes(".gif")
-    }
-
     const renderConnectedContainer = () => {
         // If we hit this, it means the program account hasn't been initialized.
         if (gifList === null) {
@@ -189,34 +182,19 @@ const App = () => {
                             Submit
                         </button>
                     </form>
-                    <div className="gif-grid">
-                        {gifList.map(
-                            (item, index) =>
-                                checkImage(item.gifLink) && (
-                                    <div className="gif-item" key={index}>
-                                        <img src={item.gifLink} alt="" />
-                                        <p style={{ color: "white" }}>
-                                            Uploader : <br />
-                                            {item.userAddress.toString()}
-                                        </p>
-                                        <p style={{ color: "white" }}>
-                                            Upvotes : <br />
-                                            {item.voters.length}
-                                        </p>
-                                        <button
-                                            className="cta-button submit-gif-button"
-                                            onClick={() => {
-                                                upvoteGif(
-                                                    item.gifLink,
-                                                    item.userAddress
-                                                )
-                                            }}
-                                        >
-                                            Upvote
-                                        </button>
-                                    </div>
-                                )
-                        )}
+                    <div className="gifs-container">
+                        {gifList.map((item, index) => (
+                            <Gif
+                                link={item.gifLink}
+                                uploader={item.userAddress}
+                                upVoters={item.upVoters.length}
+                                downVoters={item.downVoters.length}
+                                onClick={() => {
+                                    upvoteGif(item.gifLink, item.user_adress)
+                                }}
+                                key={index}
+                            ></Gif>
+                        ))}
                     </div>
                 </div>
             )

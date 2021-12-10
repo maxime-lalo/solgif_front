@@ -104,8 +104,8 @@ const App = () => {
                             <Gif
                                 link={item.gifLink}
                                 uploader={item.userAddress}
-                                upVoters={item.upVoters.length}
-                                downVoters={item.downVoters.length}
+                                upVoters={item.upVoters}
+                                downVoters={item.downVoters}
                                 key={index}
                             ></Gif>
                         ))}

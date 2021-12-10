@@ -24,7 +24,6 @@ export const Gif = (props) => {
     }
 
     const tip = (link, uploader) => {}
-
     if (checkImage(props.link)) {
         return (
             <div className="gif-container">
@@ -54,7 +53,7 @@ export const Gif = (props) => {
                         }}
                     >
                         <FontAwesomeIcon icon={faArrowAltCircleUp} /> (
-                        {props.upVoters})
+                        {props.upVoters.length})
                     </button>
                     <button
                         onClick={() => {
@@ -62,7 +61,7 @@ export const Gif = (props) => {
                         }}
                     >
                         <FontAwesomeIcon icon={faArrowAltCircleDown} /> (
-                        {props.downVoters})
+                        {props.downVoters.length})
                     </button>
                     <button
                         onClick={() => {

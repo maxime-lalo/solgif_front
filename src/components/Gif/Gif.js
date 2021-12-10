@@ -20,6 +20,7 @@ export const Gif = (props) => {
 
     const vote = async (link, uploader, direction) => {
         await program.voteGif(link, uploader, direction)
+        window.location.reload()
     }
 
     const tip = (link, uploader) => {}

@@ -1,21 +1,29 @@
-import React from "react"
-import "./Gif.css"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
-    faCopy,
     faArrowAltCircleDown,
     faArrowAltCircleUp,
+    faCopy,
 } from "@fortawesome/free-regular-svg-icons"
-const checkImage = (url) => {
-    return url.includes(".gif")
-}
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import React from "react"
 
-const vote = (link, uploader, direction) => {}
-const tip = (link, uploader) => {}
+import callProgram from "../../hooks/call.program"
+
+import "./Gif.css"
 
 export const Gif = (props) => {
+    const program = callProgram()
     let uploader = props.uploader.toString()
-    console.log(uploader)
+
+    const checkImage = (url) => {
+        return url.includes(".gif")
+    }
+
+    const vote = async (link, uploader, direction) => {
+        await program.voteGif(link, uploader, direction)
+    }
+
+    const tip = (link, uploader) => {}
+
     if (checkImage(props.link)) {
         return (
             <div className="gif-container">

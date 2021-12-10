@@ -1,37 +1,21 @@
-import { Program, Provider, web3 } from "@project-serum/anchor"
-import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js"
 import React, { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
 import swal from "sweetalert"
 
 import { Gif } from "./components/Gif/Gif"
-import idl from "./idl.json"
-import kp from "./keypair.json"
+import { loadGifs } from "./features/program/program"
+import callProgram from "./hooks/call.program"
 
 import "./App.css"
 
-// SystemProgram is a reference to the Solana runtime!
-const { SystemProgram } = web3
-
-const arr = Object.values(kp._keypair.secretKey)
-const secret = new Uint8Array(arr)
-const baseAccount = web3.Keypair.fromSecretKey(secret)
-
-// Get our program's id from the IDL file.
-const programID = new PublicKey(idl.metadata.address)
-
-// Set our network to devnet.
-const network = clusterApiUrl("devnet")
-
-// Controls how we want to acknowledge when a transaction is "done".
-const opts = {
-    preflightCommitment: "processed",
-}
-
 const App = () => {
     // State
+    const dispatch = useDispatch()
+    const program = callProgram()
     const [walletAddress, setWalletAddress] = useState(null)
     const [inputValue, setInputValue] = useState("")
     const [gifList, setGifList] = useState([])
+    //const gifList = useSelector((state) => state.counter.value)
     // Actions
     const checkIfWalletIsConnected = async () => {
         try {
@@ -42,14 +26,14 @@ const App = () => {
                     const response = await solana.connect({
                         onlyIfTrusted: true,
                     })
-
-                    /*
-                     * Set the user's publicKey in state to be used later!
-                     */
                     setWalletAddress(response.publicKey.toString())
                 }
             } else {
-                alert("Solana object not found! Get a Phantom Wallet 👻")
+                swal({
+                    title: "Warning",
+                    icon: "warning",
+                    text: "Solana object not found! Get a Phantom Wallet 👻",
+                })
             }
         } catch (error) {
             console.error(error)
@@ -58,65 +42,12 @@ const App = () => {
 
     const connectWallet = async () => {
         const { solana } = window
-
         if (solana) {
             const response = await solana.connect()
             setWalletAddress(response.publicKey.toString())
         }
     }
 
-    const sendGif = async () => {
-        if (inputValue.length === 0) {
-            return
-        }
-
-        if (!inputValue.includes(".gif")) {
-            alert("Please upload a valid gif")
-            setInputValue("")
-            return
-        }
-
-        setInputValue("")
-        try {
-            const provider = getProvider()
-            const program = new Program(idl, programID, provider)
-
-            await program.rpc.addGif(inputValue, {
-                accounts: {
-                    baseAccount: baseAccount.publicKey,
-                    user: provider.wallet.publicKey,
-                },
-            })
-            console.log("GIF successfully sent to program", inputValue)
-
-            await getGifList()
-        } catch (error) {
-            console.log("Error sending GIF:", error)
-        }
-    }
-
-    const upvoteGif = async (link, sender) => {
-        try {
-            const provider = getProvider()
-            const program = new Program(idl, programID, provider)
-
-            console.log("here")
-            await program.rpc.voteGif(link, sender, {
-                accounts: {
-                    baseAccount: baseAccount.publicKey,
-                    user: provider.wallet.publicKey,
-                },
-            })
-            console.log("GIF successfully upvoted")
-            await getGifList()
-        } catch (error) {
-            swal({
-                title: "Error",
-                icon: "error",
-                text: "You already upvoted this gif",
-            })
-        }
-    }
     const renderNotConnectedContainer = () => (
         <button
             className="cta-button connect-wallet-button"
@@ -131,16 +62,6 @@ const App = () => {
         setInputValue(value)
     }
 
-    const getProvider = () => {
-        const connection = new Connection(network, opts.preflightCommitment)
-        const provider = new Provider(
-            connection,
-            window.solana,
-            opts.preflightCommitment
-        )
-        return provider
-    }
-
     const renderConnectedContainer = () => {
         // If we hit this, it means the program account hasn't been initialized.
         if (gifList === null) {
@@ -148,7 +69,7 @@ const App = () => {
                 <div className="connected-container">
                     <button
                         className="cta-button submit-gif-button"
-                        onClick={createGifAccount}
+                        onClick={program.createGifAccount()}
                     >
                         Do One-Time Initialization For GIF Program Account
                     </button>
@@ -185,9 +106,6 @@ const App = () => {
                                 uploader={item.userAddress}
                                 upVoters={item.upVoters.length}
                                 downVoters={item.downVoters.length}
-                                onClick={() => {
-                                    upvoteGif(item.gifLink, item.user_adress)
-                                }}
                                 key={index}
                             ></Gif>
                         ))}
@@ -197,6 +115,10 @@ const App = () => {
         }
     }
 
+    const sendGif = async () => {
+        await program.sendGif(inputValue)
+        getGifList()
+    }
     // UseEffects
     useEffect(() => {
         const onLoad = async () => {
@@ -206,43 +128,14 @@ const App = () => {
         return () => window.removeEventListener("load", onLoad)
     }, [])
 
-    const createGifAccount = async () => {
-        try {
-            const provider = getProvider()
-            const program = new Program(idl, programID, provider)
-            await program.rpc.startStuffOff({
-                accounts: {
-                    baseAccount: baseAccount.publicKey,
-                    user: provider.wallet.publicKey,
-                    systemProgram: SystemProgram.programId,
-                },
-                signers: [baseAccount],
-            })
-            await getGifList()
-        } catch (error) {
-            console.log("Error creating BaseAccount account:", error)
-        }
-    }
-
     const getGifList = async () => {
-        try {
-            const provider = getProvider()
-            const program = new Program(idl, programID, provider)
-            const account = await program.account.baseAccount.fetch(
-                baseAccount.publicKey
-            )
-
-            console.log("Got the account", account)
-            setGifList(account.gifList)
-        } catch (error) {
-            setGifList(null)
+        if (walletAddress) {
+            setGifList(await program.getGifList())
         }
     }
 
     useEffect(() => {
-        if (walletAddress) {
-            getGifList()
-        }
+        getGifList()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [walletAddress])
 
@@ -255,7 +148,6 @@ const App = () => {
                         Add your own Netflix gif to our collection !
                     </p>
                     {!walletAddress && renderNotConnectedContainer()}
-                    {/* We just need to add the inverse here! */}
                     {walletAddress && renderConnectedContainer()}
                 </div>
             </div>

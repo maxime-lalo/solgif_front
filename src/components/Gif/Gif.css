@@ -1,9 +1,15 @@
 .gif-container {
     margin-bottom: 50px;
-    border: 1px solid white;
     border-radius: 10px;
     margin-right: 20px;
     padding: 20px;
+
+    background: linear-gradient(
+        90deg,
+        rgba(96, 122, 212, 1) 0%,
+        rgba(53, 161, 180, 1) 50%,
+        rgba(2, 207, 142, 1) 100%
+    );
 }
 
 .gif-uploader {
@@ -11,8 +17,8 @@
 }
 
 .gif-img {
-    width: 400px;
-    height: 250px;
+    width: 25vw;
+    height: 300px;
     border-radius: 10px;
     object-fit: cover;
 }

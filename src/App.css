@@ -1,5 +1,6 @@
 body {
     background-color: #080079;
+    padding-top: 20px;
 }
 
 .App {
@@ -90,13 +91,17 @@ body {
 }
 
 button {
-    background: -webkit-linear-gradient(left, #4e44ce, #35aee2);
+    background: black;
+    font-weight: bold;
     border-radius: 10px;
     padding: 10px 20px;
     margin: 0;
     border: none;
     color: white;
+    border: 2px solid transparent;
 }
+
 button:hover {
+    border: 2px solid white;
     cursor: pointer;
 }

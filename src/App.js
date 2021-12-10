@@ -39,14 +39,9 @@ const App = () => {
 
             if (solana) {
                 if (solana.isPhantom) {
-                    console.log("Phantom wallet found!")
                     const response = await solana.connect({
                         onlyIfTrusted: true,
                     })
-                    console.log(
-                        "Connected with Public Key:",
-                        response.publicKey.toString()
-                    )
 
                     /*
                      * Set the user's publicKey in state to be used later!
@@ -66,21 +61,22 @@ const App = () => {
 
         if (solana) {
             const response = await solana.connect()
-            console.log(
-                "Connected with Public Key:",
-                response.publicKey.toString()
-            )
             setWalletAddress(response.publicKey.toString())
         }
     }
 
     const sendGif = async () => {
         if (inputValue.length === 0) {
-            console.log("No gif link given!")
             return
         }
+
+        if (!inputValue.includes(".gif")) {
+            alert("Please upload a valid gif")
+            setInputValue("")
+            return
+        }
+
         setInputValue("")
-        console.log("Gif link:", inputValue)
         try {
             const provider = getProvider()
             const program = new Program(idl, programID, provider)
@@ -214,7 +210,6 @@ const App = () => {
         try {
             const provider = getProvider()
             const program = new Program(idl, programID, provider)
-            console.log("ping")
             await program.rpc.startStuffOff({
                 accounts: {
                     baseAccount: baseAccount.publicKey,
@@ -223,10 +218,6 @@ const App = () => {
                 },
                 signers: [baseAccount],
             })
-            console.log(
-                "Created a new BaseAccount w/ address:",
-                baseAccount.publicKey.toString()
-            )
             await getGifList()
         } catch (error) {
             console.log("Error creating BaseAccount account:", error)
@@ -244,14 +235,12 @@ const App = () => {
             console.log("Got the account", account)
             setGifList(account.gifList)
         } catch (error) {
-            console.log("Error in getGifList: ", error)
             setGifList(null)
         }
     }
 
     useEffect(() => {
         if (walletAddress) {
-            console.log("Fetching GIF list...")
             getGifList()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps

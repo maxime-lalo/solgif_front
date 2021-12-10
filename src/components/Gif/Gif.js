@@ -5,6 +5,7 @@ import {
 } from "@fortawesome/free-regular-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React from "react"
+import swal from "sweetalert"
 
 import callProgram from "../../hooks/call.program"
 
@@ -23,7 +24,13 @@ export const Gif = (props) => {
         window.location.reload()
     }
 
-    const tip = (link, uploader) => {}
+    const tip = (link, uploader) => {
+        swal({
+            icon: "warning",
+            text: "This function is still under development, we'll keep you in touch !",
+            title: "Ooops... !",
+        })
+    }
     if (checkImage(props.link)) {
         return (
             <div className="gif-container">
